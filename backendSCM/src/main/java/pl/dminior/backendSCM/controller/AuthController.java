@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.context.SecurityContextHolder;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import pl.dminior.backendSCM.model.Account;
 import pl.dminior.backendSCM.model.Campaign;
 import pl.dminior.backendSCM.repository.CampaignsRepository;
 //import pl.dminior.backendSCM.security.jwt.JwtUtils;
@@ -56,5 +57,13 @@ CampaignsRepository campaignsRepository;
             System.out.println("Found " + campaigns.size() + " campaigns in the database.");
         }
         return campaigns;
+
+//        List<Account> accounts = accountRepository.findAll();
+//        if (accounts.isEmpty()) {
+//            System.out.println("No campaigns found in the database.");
+//        } else {
+//            System.out.println("Found " + accounts.size() + " campaigns in the database.");
+//        }
+//        return accounts;
     }
 }

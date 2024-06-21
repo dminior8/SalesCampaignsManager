@@ -1,5 +1,6 @@
 package pl.dminior.backendSCM.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "Campaign")
+@Table
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Campaign {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

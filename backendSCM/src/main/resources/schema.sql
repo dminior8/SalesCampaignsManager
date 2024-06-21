@@ -1,4 +1,4 @@
-CREATE TABLE Account
+CREATE TABLE account
 (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     owner         VARCHAR(255)   NOT NULL,
@@ -8,22 +8,22 @@ CREATE TABLE Account
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE User_Password
+CREATE TABLE user_password
 (
     username     VARCHAR(40),
     password_hash VARCHAR(255),
     salt          VARCHAR(50),
     account_id    INT,
-    FOREIGN KEY (account_id) REFERENCES Account (id)
+    FOREIGN KEY (account_id) REFERENCES account (id)
 );
 
-CREATE TABLE City
+CREATE TABLE city
 (
     id        INT AUTO_INCREMENT PRIMARY KEY,
     name      VARCHAR(100) UNIQUE
 );
 
-CREATE TABLE Product
+CREATE TABLE product
 (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(255)   NOT NULL,
@@ -31,13 +31,13 @@ CREATE TABLE Product
     price       DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE Keyword
+CREATE TABLE keyword
 (
     id    INT AUTO_INCREMENT PRIMARY KEY,
     name  VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Campaign
+CREATE TABLE campaign
 (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     product_id    INT,
@@ -50,17 +50,17 @@ CREATE TABLE Campaign
     radius        INT                NOT NULL,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES Product (id),
-    FOREIGN KEY (account_id) REFERENCES Account (id),
-    FOREIGN KEY (city_id) REFERENCES City (id)
+    FOREIGN KEY (product_id) REFERENCES product (id),
+    FOREIGN KEY (account_id) REFERENCES account (id),
+    FOREIGN KEY (city_id) REFERENCES city (id)
 );
 
-CREATE TABLE Campaign_Keyword
+CREATE TABLE campaign_keyword
 (
     campaign_id INT,
     keyword_id  INT,
-    FOREIGN KEY (campaign_id) REFERENCES Campaign (id),
-    FOREIGN KEY (keyword_id) REFERENCES Keyword (id),
+    FOREIGN KEY (campaign_id) REFERENCES campaign (id),
+    FOREIGN KEY (keyword_id) REFERENCES keyword (id),
     PRIMARY KEY (campaign_id, keyword_id)
 );
 
