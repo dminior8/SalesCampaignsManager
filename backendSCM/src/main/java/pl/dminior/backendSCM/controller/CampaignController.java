@@ -2,7 +2,7 @@ package pl.dminior.backendSCM.controller;
 
 
 import pl.dminior.backendSCM.model.Campaign;
-import pl.dminior.backendSCM.service.CampaignService;
+import pl.dminior.backendSCM.service.CampaignsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,30 +12,30 @@ import java.util.List;
 @RequestMapping("/api/campaigns")
 public class CampaignController {
     @Autowired
-    private CampaignService campaignService;
+    private CampaignsService campaignsService;
 
     @GetMapping
     public List<Campaign> getAllCampaigns() {
-        return campaignService.getAllCampaigns();
+        return campaignsService.getAllCampaigns();
     }
 
     @GetMapping("/{id}")
     public Campaign getCampaignById(@PathVariable Long id) {
-        return campaignService.getCampaignById(id);
+        return campaignsService.getCampaignById(id);
     }
 
     @PostMapping
     public Campaign createCampaign(@RequestBody Campaign campaign) {
-        return campaignService.createCampaign(campaign);
+        return campaignsService.createCampaign(campaign);
     }
 
-    @PutMapping("/{id}")
-    public Campaign updateCampaign(@PathVariable Long id, @RequestBody Campaign campaignDetails) {
-        return campaignService.updateCampaign(id, campaignDetails);
-    }
+//    @PutMapping("/{id}")
+//    public Campaign updateCampaign(@PathVariable Long id, @RequestBody Campaign campaignDetails) {
+//        return campaignsService.updateCampaign(id, campaignDetails);
+//    }
 
     @DeleteMapping("/{id}")
     public void deleteCampaign(@PathVariable Long id) {
-        campaignService.deleteCampaign(id);
+        campaignsService.deleteCampaign(id);
     }
 }
