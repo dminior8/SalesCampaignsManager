@@ -3,7 +3,6 @@ package pl.dminior.backendSCM.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
@@ -15,9 +14,9 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private ERole name;
+    private EnumRole name;
 
-    public Role(ERole name) {
+    public Role(EnumRole name) {
         this.name = name;
     }
 }

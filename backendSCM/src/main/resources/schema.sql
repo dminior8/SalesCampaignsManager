@@ -60,8 +60,15 @@ CREATE TABLE campaign_keyword
     campaign_id INT,
     keyword_id  INT,
     FOREIGN KEY (campaign_id) REFERENCES campaign (id),
-    FOREIGN KEY (keyword_id) REFERENCES keyword (id),
-    PRIMARY KEY (campaign_id, keyword_id)
+    FOREIGN KEY (keyword_id) REFERENCES keyword (id)
 );
 
+CREATE TABLE campaign_city
+(
+    campaign_id INT,
+    city_id  INT,
+    FOREIGN KEY (campaign_id) REFERENCES campaign (id),
+    FOREIGN KEY (city_id) REFERENCES city (id),
+    PRIMARY KEY (campaign_id, city_id)
+);
 

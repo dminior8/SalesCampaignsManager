@@ -41,3 +41,9 @@ INSERT INTO campaign_keyword (campaign_id, keyword_id) VALUES
                                                            (1, 4),
                                                            (2, 3),
                                                            (2, 5);
+-- Kampania-Słowa kluczowe
+INSERT INTO campaign_city (campaign_id, city_id) VALUES
+                                                           (1, 1),
+                                                           (1, 3),
+                                                           (2, 3),
+                                                           (2, 2);
