@@ -3,64 +3,70 @@ package pl.dminior.backendSCM.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Campaign {
+public class Campaign{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Assuming Product and Account classes are defined
+    @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Assuming Product and Account classes are defined
+    @ManyToOne//(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @NotNull
     @Size(min = 1, max = 50)
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @NotNull
     @DecimalMin(value = "0.01", message = "Bid amount must be greater than or equal to 0.01")
     @Column(name = "bid_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal bidAmount;
 
-    @NotNull
     @Column(name = "fund", nullable = false, precision = 10, scale = 2)
     private BigDecimal fund;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, columnDefinition = "ENUM('ON', 'OFF')")
-    private CampaignStatus status;
+    private EnumCampaignStatus status;
 
-    @NotNull
-    @Column(name = "city_id", nullable = false)
-    private Long cityId;
+    @OneToOne
+    @JoinTable(
+            name = "campaign_city",
+            joinColumns = @JoinColumn(name = "campaign_id"),
+            inverseJoinColumns = @JoinColumn(name = "city_id")
+    )
+    private City city;
 
-    @NotNull
     @Column(name = "radius", nullable = false)
     private int radius;
 
+    @CreatedDate //Change access modifier
     @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    private LocalDateTime updatedAt;
 
     @OneToMany
     @JoinTable(
@@ -72,12 +78,7 @@ public class Campaign {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

@@ -5,9 +5,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pl.dminior.backendSCM.model.City;
 
-@Repository
-public interface CityRepository extends JpaRepository<City, Long> {
+import java.util.UUID;
 
-    @Query(value="SELECT * FROM campaign_city WHERE campaign_id = ?1", nativeQuery = true)
-    City getCityByProductId(Long campaignId); //dot pierwszego tutaj ?1
+@Repository
+public interface CityRepository extends JpaRepository<City, UUID> {
+    @Query(value = "SELECT * FROM city " +
+            "LEFT JOIN campaign_city ON city.id = campaign_city.city_id " +
+            "WHERE campaign_city.campaign_id = ?1",
+            nativeQuery = true)
+    City getCityByCampaignId(UUID campaignId);
+
+    City getCityById(UUID cityId);
+
+    City getByName(String city);
 }

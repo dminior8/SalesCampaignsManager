@@ -1,6 +1,6 @@
 package pl.dminior.backendSCM.model;
 
-public enum CampaignStatus {
+public enum EnumCampaignStatus {
     ON,
     OFF
 }

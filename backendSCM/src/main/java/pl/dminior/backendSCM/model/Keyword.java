@@ -3,18 +3,20 @@ package pl.dminior.backendSCM.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+import java.util.UUID;
+
+
 @Getter
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
+@Entity
 @Table(name = "keywords")
 public class Keyword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private String name;
-
 }
 

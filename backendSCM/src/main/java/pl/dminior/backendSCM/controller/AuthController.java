@@ -1,52 +1,31 @@
 package pl.dminior.backendSCM.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.authentication.AuthenticationManager;
-//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-//import org.springframework.security.core.Authentication;
-//import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dminior.backendSCM.model.Campaign;
 import pl.dminior.backendSCM.repository.CampaignRepository;
-//import pl.dminior.backendSCM.security.jwt.JwtUtils;
-//import pl.dminior.backendSCM.security.services.UserDetailsImpl;
+import pl.dminior.backendSCM.security.payloads.request.LoginRequest;
+import pl.dminior.backendSCM.security.payloads.response.JwtResponse;
+import pl.dminior.backendSCM.security.services.LoginServiceImpl;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
-//    @Autowired
-//    AuthenticationManager authenticationManager;
-//
-//    @Autowired
-//    JwtUtils jwtUtils;
-//
-//    @Autowired
-//    PasswordEncoder encoder;
-//
-//    @Autowired
-//    CampaignService campaignService;
-//
-    @Autowired
-CampaignRepository campaignRepository;
-//
-//    @PostMapping("/login")
-//    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-//
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        String jwt = jwtUtils.generateJwtToken(authentication);
-//
-//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//
-//        return ResponseEntity.ok(new JwtResponse(null, //jwt
-//                userDetails.getId(),
-//                userDetails.getUsername()));
-//    }
+    private final LoginServiceImpl loginServiceImpl;
+
+    CampaignRepository campaignRepository;
+    private PasswordEncoder encoder;
+
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponse> loginUser(@RequestBody LoginRequest loginRequest) {
+        return loginServiceImpl.getJwtResponseResponseEntity(loginRequest);
+    }
     @GetMapping("/test")
     public List<?> getUsersList(){
         List<Campaign> campaigns = campaignRepository.findAll();

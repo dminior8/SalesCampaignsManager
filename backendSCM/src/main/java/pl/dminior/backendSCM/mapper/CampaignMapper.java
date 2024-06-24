@@ -11,6 +11,7 @@ import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.repository.CityRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class CampaignMapper {
@@ -35,24 +36,34 @@ public abstract class CampaignMapper {
         if (campaign == null) {
             return null;
         }
-
         CampaignDTO campaignDTO = new CampaignDTO();
-        if (city.getName() != null) {
+
+        campaignDTO.setId(campaign.getId());
+
+        if (city != null) {
             campaignDTO.setCity(city.getName());
         }
-        campaignDTO.setId(campaign.getId());
         if (campaign.getName() != null) {
             campaignDTO.setName(campaign.getName());
         }
-
-
-        campaignDTO.setKeywords(mapToStringFromKeyword(campaign.getKeywords()));
-
-
-        campaignDTO.setBidAmount(campaign.getBidAmount());
-        campaignDTO.setFund(campaign.getFund());
-        campaignDTO.setStatus(campaign.getStatus());
-
+        if (campaign.getKeywords() != null) {
+            campaignDTO.setKeywords(mapToStringFromKeyword(campaign.getKeywords()));
+        }
+        if (campaign.getBidAmount() != null) {
+            campaignDTO.setBidAmount(campaign.getBidAmount());
+        }
+        if (campaign.getFund() != null) {
+            campaignDTO.setFund(campaign.getFund());
+        }
+        if (campaign.getStatus() != null) {
+            campaignDTO.setStatus(campaign.getStatus());
+        }
+        if (campaign.getRadius() != 0) {
+            campaignDTO.setRadius(campaign.getRadius());
+        }
+        if (campaign.getCreatedAt() != null) {
+            campaignDTO.setCreatedAt(campaign.getCreatedAt());
+        }
 
         return campaignDTO;
     }
@@ -60,5 +71,39 @@ public abstract class CampaignMapper {
     @Named("mapToStringFromKeyword")
     public List<String> mapToStringFromKeyword(List<Keyword> keywords) {
         return keywords.stream().map(Keyword::getName).toList();
+    }
+
+    public Campaign mapToCampaign(CampaignDTO campaignDTO) {
+        if (campaignDTO == null) {
+            return null;
+        }
+
+        Campaign campaign = new Campaign();
+
+        // Mapowanie pól CampaignDTO na Campaign
+        campaign.setName(campaignDTO.getName());
+        campaign.setKeywords(mapToKeywordsFromString(campaignDTO.getKeywords()));
+        campaign.setBidAmount(campaignDTO.getBidAmount());
+        campaign.setFund(campaignDTO.getFund());
+        campaign.setStatus(campaignDTO.getStatus());
+        campaign.setRadius(campaignDTO.getRadius());
+        campaign.setCreatedAt(campaignDTO.getCreatedAt());
+
+        // Mapowanie city z nazwy na obiekt City
+        if (campaignDTO.getCity() != null) {
+            City city = cityRepository.getByName(campaignDTO.getCity());
+            campaign.setCity(city);
+        }
+
+        return campaign;
+    }
+
+    @Named("mapToKeywordsFromString")
+    public List<Keyword> mapToKeywordsFromString(List<String> keywordNames) {
+        return keywordNames.stream().map(name -> {
+            Keyword keyword = new Keyword();
+            keyword.setName(name);
+            return keyword;
+        }).collect(Collectors.toList());
     }
 }
