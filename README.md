@@ -4,8 +4,10 @@ This is a web application designed for managing sales campaigns for various prod
 
 ## Table of Contents
 - [Getting Started](#getting-started)
+- [Logging in](#logging-in)
 - [Endpoints](#endpoints)
 - [Technologies Used](#technologies-used)
+- [License](#license)
 
 ## Getting Started
 
@@ -21,7 +23,7 @@ To get started with this project, clone the repository and follow the instructio
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/dminior8/SalesCampaingsManager.git
+   git clone https://github.com/dminior8/SalesCampaignsManager.git
    cd your-repository/backendSCM
    ```
 
@@ -56,25 +58,41 @@ To get started with this project, clone the repository and follow the instructio
 
 ## Endpoints
 
-Below is a table of the available API endpoints, their methods, and descriptions:
+Below is a table of the most importants API endpoints, their methods, and descriptions, in addition to these, there are also auxiliary endpoints that are not listed here:
 
-| Method | Endpoint                                   | Description                                                                           | Response                                         |
-|--------|--------------------------------------------|---------------------------------------------------------------------------------------|--------------------------------------------------|
-| POST   | `/api/auth/login`                          | Authenticates a user and returns a JWT token.                                          | JSON object with JWT token and user details.     |
-| POST   | `/api/campaigns/add`                       | Adds a new campaign to the database. Requires JWT authentication.                      | JSON object with details of the added campaign.  |
-| GET    | `/api/campaigns`                           | Retrieves a list of all campaigns. Requires JWT authentication.                        | JSON array of campaign objects.                  |
-| GET    | `/api/campaigns/products`                  | Retrieves a list of all products associated with campaigns. Requires JWT authentication.| JSON array of product objects.                   |
+| Method | Endpoint                                   | Description                                                                           | Response                                          |
+|--------|--------------------------------------------|---------------------------------------------------------------------------------------|---------------------------------------------------|
+| GET    | `/api/campaigns/products`                  | Retrieves a list of all products associated with campaigns. Requires JWT authentication.| JSON array of product objects.                  |
 | GET    | `/api/campaigns/products/{productId}`      | Retrieves details of a specific product by ID. Requires JWT authentication.            | JSON object with product details.                |
-| GET    | `/api/user/current`                        | Retrieves details of the currently authenticated user. Requires JWT authentication.    | JSON object with user details.                   |
-| PUT    | `/api/campaigns/edit`                      | Edits an existing campaign. Requires JWT authentication.                               | JSON object with updated campaign details.       |
+| GET    | `/api/campaigns`                           | Retrieves a list of all campaigns. Requires JWT authentication.                        | JSON array of campaign objects.                  |
+| GET    | `/api/campaigns/{campaignId}`              | Retrieves details of a specific campaign by ID. Requires JWT authentication.           | JSON object with campaign details.               |
+| POST   | `/api/campaigns/products/{productId}/add`  | Adds a new campaign for a product. Requires JWT authentication.                        | JSON object with result of adding campaign.      |
+| POST   | `/api/auth/login`                          | Authenticates a user and returns a JWT token.	JSON object with JWT token and user details. | JSON object with JWT token and user details. |
+| PUT    | `/api/campaigns`                           | Edits an existing campaign. Requires JWT authentication.                               | JSON object with updated campaign details.       |
 | DELETE | `/api/campaigns/{campaignId}`              | Deletes a specific campaign by ID. Requires JWT authentication.                        | JSON object confirming deletion.                 |
+
+
+## Logging in
+
+You can log in using the following credentials for different users:
+
+### User 1:
+- **Username:** `jKowalski`
+- **Password:** `Admin123!`
+
+### User 2:
+- **Username:** `aNowak`
+- **Password:** `password`
+
 
 ## Technologies Used
 
 - **Backend**:
   - Spring Boot
+  - Hibernate
   - Spring Security (JWT Authentication)
   - H2 Database (SQL)
+  - JUnit 5 and Mockito for testing
   - Maven
 
 - **Frontend**:
