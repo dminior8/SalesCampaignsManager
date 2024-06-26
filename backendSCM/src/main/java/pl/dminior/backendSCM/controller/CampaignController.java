@@ -9,13 +9,11 @@ import pl.dminior.backendSCM.dto.CampaignDTO;
 import pl.dminior.backendSCM.dto.CreateCampaignDTO;
 import pl.dminior.backendSCM.dto.EditCampaignDTO;
 import pl.dminior.backendSCM.mapper.CampaignMapper;
-import pl.dminior.backendSCM.model.Campaign;
-import pl.dminior.backendSCM.model.City;
-import pl.dminior.backendSCM.model.Product;
-import pl.dminior.backendSCM.security.payloads.response.MessageResponse;
+import pl.dminior.backendSCM.model.*;
+import pl.dminior.backendSCM.payloads.response.MessageResponse;
 import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.repository.CityRepository;
-import pl.dminior.backendSCM.security.services.UserDetailsImpl;
+import pl.dminior.backendSCM.security.services.AccountDetailsImpl;
 import pl.dminior.backendSCM.service.CampaignService;
 import org.springframework.web.bind.annotation.*;
 import pl.dminior.backendSCM.service.ProductService;
@@ -31,94 +29,91 @@ public class CampaignController {
     private final CampaignService campaignService;
     private final CityRepository cityRepository;
     private final CampaignMapper campaignMapper;
-    private final ProductService productService;
-    private final AccountRepository accountRepository;
 
 
     //Odczytywanie listy wszystkich kampanii dla danego produktu
     @GetMapping("/products/{productId}")
-    public ResponseEntity<?> getAllCampaignsByProductId(@PathVariable UUID productId, Authentication authentication) { //public ResponseEntity<List<CampaignDTO>> getAllCampaignsByProductId(@PathVariable UUID productId) {
+    public ResponseEntity<?> getAllCampaignsByProductId(@PathVariable UUID productId, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
+            AccountDetailsImpl accountDetailsImpl = (AccountDetailsImpl) authentication.getPrincipal();
+            UUID accountId = accountDetailsImpl.getId();
             List<CampaignDTO> campaignDTOList = new ArrayList<>();
-            List<Campaign> campaigns = campaignService.getAllCampaignsByProductId(productId);
+            List<Campaign> campaigns = campaignService.getAllCampaignsByProductIdAndUserId(productId,accountId);
             campaigns.forEach(campaign -> {
-                City city = cityRepository.getCityByCampaignId(campaign.getId()); //getCityByProductId było wcześniej
+                City city = cityRepository.getCityByCampaignId(campaign.getId());
                 campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign, city));
             });
             return ResponseEntity.ok(campaignDTOList);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
-
     }
 
-    //TODO: Lista produtków dla danego użytkownika
-    @GetMapping("/products")
-    public ResponseEntity<?> getAllProducts(Authentication authentication) {
-        if (authentication != null && authentication.isAuthenticated()) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            UUID id = userDetails.getId();
-            List<Product> products = productService.getAllProductsByUserId(id);
-
-            return ResponseEntity.ok(products);
-        }else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-        }
-
-    }
-
+    //Pobieranie wszystkich dostępnych kampanii
     @GetMapping
     public ResponseEntity<?> getAllCampaigns(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            UUID id = userDetails.getId();
+            AccountDetailsImpl accountDetailsImpl = (AccountDetailsImpl) authentication.getPrincipal();
+            UUID id = accountDetailsImpl.getId();
             List<CampaignDTO> campaignDTOList = new ArrayList<>();
             List<Campaign> campaigns = campaignService.getAllCampaignsByAccountId(id);
             campaigns.forEach(campaign -> {
                 City city = cityRepository.getCityByCampaignId(campaign.getId());
-                campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign,city));
+                campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign, city));
             });
             return ResponseEntity.ok(campaignDTOList);
-        }else {
+        } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
-
-
-
     }
 
     //Odczytywanie szczegółów o konkretnej kampanii (dot. konkretnego produktu)
     @GetMapping("/{campaignId}")
-    public ResponseEntity<CampaignDTO> getCampaignById(@PathVariable UUID campaignId) {
-        Campaign campaign = campaignService.getCampaignByCampaignId(campaignId);
-        if (campaign == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getCampaignById(@PathVariable UUID campaignId, Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            Campaign campaign = campaignService.getCampaignByCampaignId(campaignId);
+            if (campaign == null) {
+                return ResponseEntity.notFound().build();
+            }
+            City city = cityRepository.getCityById(campaign.getCity().getId());
+            CampaignDTO campaignDTO = campaignMapper.mapToCampaignDTO(campaign, city);
+            return ResponseEntity.ok(campaignDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
-        City city = cityRepository.getCityById(campaign.getCity().getId());
-        CampaignDTO campaignDTO = campaignMapper.mapToCampaignDTO(campaign, city);
-        return ResponseEntity.ok(campaignDTO);
     }
 
     //Dodawanie nowej kampanii dla produktu
-    @PostMapping("/add") //dodałem, w razie czego sprawdzić
-    //public ResponseEntity<CampaignDTO> createCampaignForProduct(@PathVariable UUID productId, @Valid @RequestBody CampaignDTO campaignDTO) {
-    public ResponseEntity<MessageResponse> createCampaignForProduct(@RequestBody CreateCampaignDTO createCampaignDTO) {
-        campaignService.saveCampaign(createCampaignDTO);
-        return ResponseEntity.ok().body(new MessageResponse("Kampania dodana pomyślnie!")); //campaignService.saveCampaign(newCampaignDTO)
+    @PostMapping("products/{productId}/add")
+    public ResponseEntity<?> createCampaignForProduct(@RequestBody CreateCampaignDTO createCampaignDTO, Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            campaignService.saveCampaign(createCampaignDTO);
+            return ResponseEntity.ok().body(new MessageResponse("Campaign added successfully!"));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
     }
-
 
     //Aktualizacja istniejącej kampanii
     @PutMapping
-    public ResponseEntity<MessageResponse> editCampaignForProduct(@RequestBody EditCampaignDTO editCampaignDTO) {
-        campaignService.editCampaign(editCampaignDTO);
-        return ResponseEntity.ok().body(new MessageResponse("Kampania edytowana pomyślnie!")); //campaignService.saveCampaign(newCampaignDTO)
+    public ResponseEntity<?> editCampaignForProduct(@RequestBody EditCampaignDTO editCampaignDTO, Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            campaignService.editCampaign(editCampaignDTO);
+            return ResponseEntity.ok().body(new MessageResponse("Campaign edited successfully!"));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
     }
+
 
     //Usuwanie kampanii
     @DeleteMapping("/{campaignId}")
-    public ResponseEntity<MessageResponse> deleteCampaignByCampaignId(@PathVariable UUID campaignId) {
-        campaignService.deleteCampaign(campaignId);
-        return ResponseEntity.ok().body(new MessageResponse("Kampania usunięta pomyślnie!"));
+    public ResponseEntity<?> deleteCampaignByCampaignId(@PathVariable UUID campaignId, Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            campaignService.deleteCampaign(campaignId);
+            return ResponseEntity.ok().body(new MessageResponse("Campaign deleted successfully!"));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
     }
 }

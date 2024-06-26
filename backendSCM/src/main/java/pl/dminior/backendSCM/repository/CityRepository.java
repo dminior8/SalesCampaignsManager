@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pl.dminior.backendSCM.model.City;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -18,4 +19,8 @@ public interface CityRepository extends JpaRepository<City, UUID> {
     City getCityById(UUID cityId);
 
     City getByName(String city);
+
+    @Query(value = "SELECT DISTINCT * FROM city",
+            nativeQuery = true)
+    List<City> getAll();
 }

@@ -8,6 +8,7 @@ const CampaignsPage = () => {
   const [main, setMain] = useState([]);
   const [user, setUser] = useState({ username: '', balance: 0 }); // Nowy stan dla danych użytkownika
   const { productId } = useParams(); // Pobieranie productId ze ścieżki URL
+  let mainResponse;
 
   const fetchData = async () => {
     try {
@@ -19,14 +20,27 @@ const CampaignsPage = () => {
         return;
       }
 
-      const mainResponse = await axios.get(
-        `http://localhost:8090/api/campaigns`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Przekazanie tokena w nagłówku
-          },
-        }
-      );
+      if (!productId) {
+        // Jeśli productId jest puste, pobierz dane z `/api/campaigns`
+        mainResponse = await axios.get(
+          `http://localhost:8090/api/campaigns`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        // Jeśli productId istnieje, pobierz dane z `/api/campaigns/products/{productID}`
+        mainResponse = await axios.get(
+          `http://localhost:8090/api/campaigns/products/${productId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
       console.log("API Response:", mainResponse.data);
 
       const userResponse = await axios.get(
@@ -143,8 +157,8 @@ const CampaignsPage = () => {
                           <b>{data.name}</b>
                         </i>
                       </td>
-                      <td>{data.bidAmount}$</td>
-                      <td>{data.fund}$</td>
+                      <td>{data.bidAmount} PLN</td>
+                      <td>{data.fund} PLN</td>
                       <td>
                         <i>{data.status}</i>
                       </td>
@@ -154,7 +168,7 @@ const CampaignsPage = () => {
                       <td>
                         <Link
                           className="btn btn-outline-primary mx-1"
-                          to={`/${data.campaignId}`}
+                          to={`${data.campaignId}`}
                         >
                           Edit
                         </Link>

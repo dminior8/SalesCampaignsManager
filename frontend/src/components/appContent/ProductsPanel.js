@@ -100,7 +100,6 @@ const CampaignsPage = () => {
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Description amount</th>
-                    <th scope="col">Price</th>
                     <th scope="col">Options</th>
                   </tr>
                 </thead>
@@ -114,13 +113,18 @@ const CampaignsPage = () => {
                         </i>
                       </td>
                       <td>{data.description}</td>
-                      <td>{data.price}</td>
                       <td>
                         <Link
                           className="btn btn-outline-primary mx-1"
-                          to={`/${data.productId}`}
+                          to={`${data.productId}`}
                         >
                           See more
+                        </Link>
+                        <Link
+                          className="btn btn-outline-primary mx-1"
+                          to={`${data.productId}/add`}
+                        >
+                          Add campaign
                         </Link>
                       </td>
                     </tr>

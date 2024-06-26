@@ -8,8 +8,9 @@ import pl.dminior.backendSCM.model.*;
 import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.repository.CampaignRepository;
 import org.springframework.stereotype.Service;
+import pl.dminior.backendSCM.repository.CityRepository;
+import pl.dminior.backendSCM.repository.KeywordRepository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
@@ -19,13 +20,15 @@ import java.util.List;
 public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final AccountRepository accountRepository;
+    private final KeywordRepository keywordRepository;
+    private final CityRepository cityRepository;
 
     public Campaign getCampaignByCampaignId(UUID campaignId){
         return campaignRepository.getById(campaignId);
     }
 
-    public List<Campaign> getAllCampaignsByProductId(UUID productId) {
-        return campaignRepository.getByProductId(productId);
+    public List<Campaign> getAllCampaignsByProductIdAndUserId(UUID productId, UUID accountId) {
+        return campaignRepository.getAllByProductIdAndAccountId(productId, accountId);
     }
 
     @Transactional
@@ -77,6 +80,13 @@ public class CampaignService {
 
     public List<Campaign> getAllCampaignsByAccountId(UUID id) {
         return campaignRepository.findAllByAccountId(id);
+    }
+
+    public List<Keyword> getAllKeywords() {
+        return keywordRepository.getAll();
+    }
+    public List<City> getAllCities() {
+        return cityRepository.getAll();
     }
 }
 

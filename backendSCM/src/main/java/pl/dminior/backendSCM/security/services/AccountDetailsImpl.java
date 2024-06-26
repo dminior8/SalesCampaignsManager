@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
-public class UserDetailsImpl implements UserDetails {
+public class AccountDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
@@ -28,8 +28,8 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(UUID id, String username, String password,
-                           Collection<? extends GrantedAuthority> authorities, EnumRole role) {
+    public AccountDetailsImpl(UUID id, String username, String password,
+                              Collection<? extends GrantedAuthority> authorities, EnumRole role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -38,14 +38,14 @@ public class UserDetailsImpl implements UserDetails {
 
     }
 
-    public static UserDetailsImpl build(Account account) {
+    public static AccountDetailsImpl build(Account account) {
         List<GrantedAuthority> authorities = account.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
 
         EnumRole role = account.getRole();
 
-        return new UserDetailsImpl(
+        return new AccountDetailsImpl(
                 account.getId(),
                 account.getUsername(),
                 account.getPassword(),
@@ -103,7 +103,7 @@ public class UserDetailsImpl implements UserDetails {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        UserDetailsImpl user = (UserDetailsImpl) o;
+        AccountDetailsImpl user = (AccountDetailsImpl) o;
         return Objects.equals(id, user.id);
     }
 

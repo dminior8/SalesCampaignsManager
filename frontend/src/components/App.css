@@ -1,7 +1,4 @@
-body{
-  overflow: hidden;
-  
-}
+
 .App{
   background-color: #e0e0e0;
   background-size: cover; /* Dopasowanie obrazu do rozmiaru kontenera */

@@ -1,8 +1,5 @@
 package pl.dminior.backendSCM.security.jwt;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
 import io.jsonwebtoken.*;
 
 import org.slf4j.Logger;
@@ -10,8 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import pl.dminior.backendSCM.model.Account;
-import pl.dminior.backendSCM.security.services.UserDetailsImpl;
+import pl.dminior.backendSCM.security.services.AccountDetailsImpl;
 
 import java.util.Date;
 
@@ -26,7 +22,7 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        AccountDetailsImpl userDetails = (AccountDetailsImpl) authentication.getPrincipal();
 
         return Jwts.builder()
                 .setSubject((userDetails.getUsername()))

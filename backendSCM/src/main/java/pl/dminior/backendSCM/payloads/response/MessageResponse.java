@@ -1,4 +1,4 @@
-package pl.dminior.backendSCM.security.payloads.response;
+package pl.dminior.backendSCM.payloads.response;
 
 import lombok.*;
 

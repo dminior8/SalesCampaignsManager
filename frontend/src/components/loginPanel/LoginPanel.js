@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
 import "./loginPanel.css";
@@ -36,7 +36,7 @@ function LoginPanel({ onLogin }) {
         }
         setInfo("Logged in successfully!");
         //onLogin(true); // Aktualizuj stan logowania
-        //navigate("/api/campaigns");
+        navigate("/api/campaigns/products");
       })
       .catch((error) => {
         if (error.response) {

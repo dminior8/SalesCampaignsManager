@@ -31,8 +31,11 @@ function MainNavigationWithAlert() {
         </Nav.Item>
 
         <Nav.Item>
-          <Nav.Link eventKey="/api/campaigns/add" href="/api/campaigns/add">
-            Add new
+          <Nav.Link
+            eventKey="/api/campaigns/products"
+            href="/api/campaigns/products"
+          >
+            Products
           </Nav.Link>
         </Nav.Item>
       </Nav>

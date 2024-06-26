@@ -9,20 +9,15 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.dminior.backendSCM.configuration.PropertiesConfig;
 import pl.dminior.backendSCM.model.Account;
-import pl.dminior.backendSCM.model.EnumRole;
 import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.security.jwt.JwtUtils;
-import pl.dminior.backendSCM.security.payloads.request.LoginRequest;
-import pl.dminior.backendSCM.security.payloads.response.JwtResponse;
-
-
-import java.util.List;
+import pl.dminior.backendSCM.payloads.request.LoginRequest;
+import pl.dminior.backendSCM.payloads.response.JwtResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +43,7 @@ public class LoginServiceImpl {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        AccountDetailsImpl userDetails = (AccountDetailsImpl) authentication.getPrincipal();
 
         return new JwtResponse(jwt,
                 userDetails.getId(),
@@ -98,7 +93,7 @@ public class LoginServiceImpl {
 //    }
 
     public ResponseEntity<JwtResponse> getJwtResponseFromUser(Account account) {
-        UserDetailsImpl userPrincipal = UserDetailsImpl.build(account);
+        AccountDetailsImpl userPrincipal = AccountDetailsImpl.build(account);
         String accessToken = jwtUtils.generateJwtToken((Authentication) userPrincipal);
         JwtResponse jwtResponse = new JwtResponse(
                 accessToken,

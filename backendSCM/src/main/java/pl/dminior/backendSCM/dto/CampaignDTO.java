@@ -7,13 +7,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-//name
-//keywords
-//bidAmount
-//fund
-//status
-//cityId
-//radius
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,7 +19,7 @@ public class CampaignDTO {
     private BigDecimal bidAmount;
     private BigDecimal fund;
     private EnumCampaignStatus status;
-    private String city; // Pole na nazwę miasta
+    private String city;
     private Integer radius;
     private LocalDateTime createdAt;
 

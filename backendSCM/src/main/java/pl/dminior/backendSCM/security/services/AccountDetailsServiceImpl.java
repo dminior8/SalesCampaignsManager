@@ -11,7 +11,7 @@ import pl.dminior.backendSCM.repository.AccountRepository;
 
 @Service
 @RequiredArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class AccountDetailsServiceImpl implements UserDetailsService {
     private final AccountRepository accountRepository;
 
     @Override
@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User Not Found with username: " + username);
         }
 
-        return UserDetailsImpl.build(account);
+        return AccountDetailsImpl.build(account);
     }
 
 }
