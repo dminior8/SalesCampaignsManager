@@ -12,9 +12,9 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
     Product findProductById(UUID productId);
 
-    @Query(value = "SELECT product.* FROM product " +
+    @Query(value = "SELECT DISTINCT product.* FROM product " +
             "LEFT JOIN campaign ON campaign.product_id = product.id " +
-            "WHERE campaign_city.campaign_id = ?1",
+            "WHERE campaign.account_id = ?1",
             nativeQuery = true)
-    List<Product> findAllByUserId(UUID userId);
+    List<Product> findAllByAccountId(UUID userId);
 }

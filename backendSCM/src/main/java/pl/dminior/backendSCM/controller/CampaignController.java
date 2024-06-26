@@ -2,16 +2,20 @@ package pl.dminior.backendSCM.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import pl.dminior.backendSCM.dto.CampaignDTO;
 import pl.dminior.backendSCM.dto.CreateCampaignDTO;
 import pl.dminior.backendSCM.dto.EditCampaignDTO;
 import pl.dminior.backendSCM.mapper.CampaignMapper;
 import pl.dminior.backendSCM.model.Campaign;
 import pl.dminior.backendSCM.model.City;
+import pl.dminior.backendSCM.model.Product;
 import pl.dminior.backendSCM.security.payloads.response.MessageResponse;
 import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.repository.CityRepository;
+import pl.dminior.backendSCM.security.services.UserDetailsImpl;
 import pl.dminior.backendSCM.service.CampaignService;
 import org.springframework.web.bind.annotation.*;
 import pl.dminior.backendSCM.service.ProductService;
@@ -33,33 +37,54 @@ public class CampaignController {
 
     //Odczytywanie listy wszystkich kampanii dla danego produktu
     @GetMapping("/products/{productId}")
-    public ResponseEntity<List<CampaignDTO>> getAllCampaignsByProductId(@PathVariable UUID productId) {
-        List<CampaignDTO> campaignDTOList = new ArrayList<>();
-        List<Campaign> campaigns = campaignService.getAllCampaignsByProductId(productId);
-        campaigns.forEach(campaign -> {
-            City city = cityRepository.getCityByCampaignId(campaign.getId()); //getCityByProductId było wcześniej
-            campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign,city));
-        });
-        return ResponseEntity.ok(campaignDTOList);
+    public ResponseEntity<?> getAllCampaignsByProductId(@PathVariable UUID productId, Authentication authentication) { //public ResponseEntity<List<CampaignDTO>> getAllCampaignsByProductId(@PathVariable UUID productId) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            List<CampaignDTO> campaignDTOList = new ArrayList<>();
+            List<Campaign> campaigns = campaignService.getAllCampaignsByProductId(productId);
+            campaigns.forEach(campaign -> {
+                City city = cityRepository.getCityByCampaignId(campaign.getId()); //getCityByProductId było wcześniej
+                campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign, city));
+            });
+            return ResponseEntity.ok(campaignDTOList);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
     }
 
     //TODO: Lista produtków dla danego użytkownika
-//    @GetMapping("/products")
-//    public ResponseEntity<List<Product>> getAllProducts((@AuthenticationPrincipal UserDetails userDetails) {
-//        List<Product> products = new ArrayList<>();
-//        productService.getAllProducts();
-//        return ResponseEntity.ok(productService.getAllProducts());
-//    }
+    @GetMapping("/products")
+    public ResponseEntity<?> getAllProducts(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            UUID id = userDetails.getId();
+            List<Product> products = productService.getAllProductsByUserId(id);
+
+            return ResponseEntity.ok(products);
+        }else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+    }
 
     @GetMapping
-    public ResponseEntity<List<CampaignDTO>> getAllCampaigns() {
-        List<CampaignDTO> campaignDTOList = new ArrayList<>();
-        List<Campaign> campaigns = campaignService.getAllCampaigns();
-        campaigns.forEach(campaign -> {
-            City city = cityRepository.getCityByCampaignId(campaign.getId()); //getCityByProductId było wcześniej
-            campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign,city));
-        });
-        return ResponseEntity.ok(campaignDTOList);
+    public ResponseEntity<?> getAllCampaigns(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            UUID id = userDetails.getId();
+            List<CampaignDTO> campaignDTOList = new ArrayList<>();
+            List<Campaign> campaigns = campaignService.getAllCampaignsByAccountId(id);
+            campaigns.forEach(campaign -> {
+                City city = cityRepository.getCityByCampaignId(campaign.getId());
+                campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign,city));
+            });
+            return ResponseEntity.ok(campaignDTOList);
+        }else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+
+
     }
 
     //Odczytywanie szczegółów o konkretnej kampanii (dot. konkretnego produktu)

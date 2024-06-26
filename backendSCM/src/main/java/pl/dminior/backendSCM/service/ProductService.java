@@ -16,7 +16,7 @@ public class ProductService {
         return productRepository.findProductById(productId);
     }
 
-    public List<Product> getAllProducts(UUID userId) {
-        return productRepository.findAllByUserId(userId);
+    public List<Product> getAllProductsByUserId(UUID userId) {
+        return productRepository.findAllByAccountId(userId);
     }
 }

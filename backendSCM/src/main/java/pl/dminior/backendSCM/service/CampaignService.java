@@ -75,8 +75,8 @@ public class CampaignService {
         campaignRepository.deleteById(campaignId);
     }
 
-    public List<Campaign> getAllCampaigns() {
-        return campaignRepository.findAll();
+    public List<Campaign> getAllCampaignsByAccountId(UUID id) {
+        return campaignRepository.findAllByAccountId(id);
     }
 }
 

@@ -1,0 +1,10 @@
+.AppContent {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    min-height: calc(100vh - 120px);
+}
+  
+.container-fluid{
+    min-height: 8vh;
+}

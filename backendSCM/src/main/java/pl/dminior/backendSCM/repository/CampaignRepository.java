@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface CampaignRepository extends JpaRepository<Campaign, UUID> {
     List<Campaign> getByProductId(UUID productId);
     Campaign getCampaignById(UUID campaignId);
-    List<Campaign> findAll();
+    List<Campaign> findAllByAccountId(UUID id);
 }
