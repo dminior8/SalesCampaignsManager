@@ -68,7 +68,7 @@ Below is a table of the most importants API endpoints, their methods, and descri
 | GET    | `/api/campaigns/{campaignId}`              | Retrieves details of a specific campaign by ID. Requires JWT authentication.           | JSON object with campaign details.               |
 | POST   | `/api/campaigns/products/{productId}/add`  | Adds a new campaign for a product. Requires JWT authentication.                        | JSON object with result of adding campaign.      |
 | POST   | `/api/auth/login`                          | Authenticates a user and returns a JWT token.	JSON object with JWT token and user details. | JSON object with JWT token and user details. |
-| PUT    | `/api/campaigns`                           | Edits an existing campaign. Requires JWT authentication.                               | JSON object with updated campaign details.       |
+| PUT    | `/api/campaigns/{campaignId}/edit`                           | Edits an existing campaign. Requires JWT authentication.             | JSON object with updated campaign details.       |
 | DELETE | `/api/campaigns/{campaignId}`              | Deletes a specific campaign by ID. Requires JWT authentication.                        | JSON object confirming deletion.                 |
 
 
