@@ -17,7 +17,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-//import pl.dminior.backendSCM.configuration.PropertiesConfig;
 import pl.dminior.backendSCM.security.services.AccountDetailsServiceImpl;
 
 import java.io.IOException;

@@ -11,12 +11,10 @@ import pl.dminior.backendSCM.dto.EditCampaignDTO;
 import pl.dminior.backendSCM.mapper.CampaignMapper;
 import pl.dminior.backendSCM.model.*;
 import pl.dminior.backendSCM.payloads.response.MessageResponse;
-import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.repository.CityRepository;
 import pl.dminior.backendSCM.security.services.AccountDetailsImpl;
 import pl.dminior.backendSCM.service.CampaignService;
 import org.springframework.web.bind.annotation.*;
-import pl.dminior.backendSCM.service.ProductService;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import pl.dminior.backendSCM.model.EnumRole;
 
-import java.util.List;
 import java.util.UUID;
 
 @Getter

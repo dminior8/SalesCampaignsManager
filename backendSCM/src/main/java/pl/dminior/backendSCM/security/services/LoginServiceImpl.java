@@ -10,11 +10,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import pl.dminior.backendSCM.configuration.PropertiesConfig;
-import pl.dminior.backendSCM.model.Account;
-import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.security.jwt.JwtUtils;
 import pl.dminior.backendSCM.payloads.request.LoginRequest;
 import pl.dminior.backendSCM.payloads.response.JwtResponse;
@@ -26,8 +24,6 @@ public class LoginServiceImpl {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final PropertiesConfig propertiesConfig;
-    private final AccountRepository accountRepository;
-    private final PasswordEncoder encoder;
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         log.info("Authenticating user: {}", loginRequest.getUsername());
@@ -68,15 +64,6 @@ public class LoginServiceImpl {
                 .build();
     }
 
-    private HttpCookie createRefreshTokenCookie(String token, Long duration) {
-        return ResponseCookie.from(propertiesConfig.getRefreshTokenCookieName(), token)
-                .maxAge(duration)
-                .httpOnly(true)
-                .sameSite("Strict")
-                .path("/")
-                .build();
-    }
-
     @Transactional
     public ResponseEntity<JwtResponse> getJwtResponseResponseEntity(LoginRequest loginRequest) {
         JwtResponse jwtResponse = authenticateUser(loginRequest);
@@ -84,32 +71,4 @@ public class LoginServiceImpl {
         return ResponseEntity.ok().headers(responseHeaders).body(jwtResponse);
     }
 
-//    public String getUserEmailFromAccessToken(String accessToken) {
-//        String[] chunks = accessToken.split("\\.");
-//        Base64.Decoder decoder = Base64.getUrlDecoder();
-//        String payload = new String(decoder.decode(chunks[1]));
-//        JsonObject converted = new Gson().fromJson(payload, JsonObject.class);
-//        return converted.get("sub").getAsString();
-//    }
-
-    public ResponseEntity<JwtResponse> getJwtResponseFromUser(Account account) {
-        AccountDetailsImpl userPrincipal = AccountDetailsImpl.build(account);
-        String accessToken = jwtUtils.generateJwtToken((Authentication) userPrincipal);
-        JwtResponse jwtResponse = new JwtResponse(
-                accessToken,
-                account.getId(),
-                account.getUsername(),
-                account.getRole());
-        HttpHeaders httpHeaders = createHeaders(jwtResponse);
-        return ResponseEntity.ok().headers(httpHeaders).body(jwtResponse);
-    }
-
-//    public ResponseEntity<MessageResponse> checkIfTokesExpired(String token) {
-//        PasswordReset passwordReset = getPasswordResetByToken(token);
-//
-//        if (passwordReset != null && passwordReset.getExpirationDate().isAfter(LocalDateTime.now()))
-//            return ResponseEntity.ok(new MessageResponse("Token is still valid"));
-//        else
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Token expired"));
-//    }
 }

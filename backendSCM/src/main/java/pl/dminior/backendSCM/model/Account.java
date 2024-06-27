@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,9 +36,6 @@ public class Account {
 
     @Column(name="role_id")
     private EnumRole role;
-
-//    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-//    public RefreshToken refreshToken;
 
     public List<EnumRole> getRoles() {
         List<EnumRole> enumList = new ArrayList<>();

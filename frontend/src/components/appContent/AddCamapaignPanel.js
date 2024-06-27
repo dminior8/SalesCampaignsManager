@@ -189,8 +189,8 @@ const AddCampaignPage = () => {
       await axios.put(
         `http://localhost:8090/api/user/current/balance`,
         {
-          "username": user.username,
-          "balance": user.balance
+          username: user.username,
+          balance: newBalance
         },
         {
           headers: {
