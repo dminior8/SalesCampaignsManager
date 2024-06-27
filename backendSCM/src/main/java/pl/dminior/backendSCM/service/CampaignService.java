@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import pl.dminior.backendSCM.repository.CityRepository;
 import pl.dminior.backendSCM.repository.KeywordRepository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
@@ -22,9 +23,10 @@ public class CampaignService {
     private final AccountRepository accountRepository;
     private final KeywordRepository keywordRepository;
     private final CityRepository cityRepository;
+    private final UserService userService;
 
-    public Campaign getCampaignByCampaignId(UUID campaignId){
-        return campaignRepository.getById(campaignId);
+    public Optional<Campaign> getCampaignByCampaignId(UUID campaignId) {
+        return campaignRepository.findById(campaignId);
     }
 
     public List<Campaign> getAllCampaignsByProductIdAndUserId(UUID productId, UUID accountId) {
@@ -51,26 +53,39 @@ public class CampaignService {
     }
 
     @Transactional
-    public void editCampaign(EditCampaignDTO editCampaignDTO) {
-        Campaign campaign = campaignRepository.getCampaignById(editCampaignDTO.getId());
-        if(campaign != null){
-            campaign.setId(editCampaignDTO.getId());
-            campaign.setName(editCampaignDTO.getName());
-            campaign.setBidAmount(editCampaignDTO.getBidAmount());
-            campaign.setFund(editCampaignDTO.getFund());
-            campaign.setStatus(editCampaignDTO.getStatus());
-            campaign.setCity(editCampaignDTO.getCity());
-            campaign.setRadius(editCampaignDTO.getRadius());
-            campaign.setCreatedAt(editCampaignDTO.getCreatedAt());
-            campaign.setProduct(editCampaignDTO.getProduct());
-            campaign.setKeywords(editCampaignDTO.getKeywords());
+    public Campaign editCampaign(EditCampaignDTO editCampaignDTO, UUID campaignId) {
+        Double newFounds = Double.valueOf(editCampaignDTO.getFund().toString());
+        Double oldFounds = campaignRepository.getFundById(campaignId).doubleValue();
+        Double balance = Double.valueOf(accountRepository.getBalanceById(editCampaignDTO.getAccountId()).toString());
 
-            Optional<Account> account = accountRepository.findById(editCampaignDTO.getAccountId());
-            campaign.setAccount(account.get());
+        if (newFounds < oldFounds) {
+            return null;
+        } else if (newFounds - oldFounds > balance) {
+            return null;
+        } else {
+            Optional<Campaign> existingCampaign = campaignRepository.findById(campaignId);
+            if (existingCampaign.isPresent()) {
+                Campaign campaignToUpdate = existingCampaign.get();
+                campaignToUpdate.setId(campaignId);
+                campaignToUpdate.setName(editCampaignDTO.getName());
+                campaignToUpdate.setBidAmount(editCampaignDTO.getBidAmount());
+                campaignToUpdate.setFund(editCampaignDTO.getFund());
+                campaignToUpdate.setStatus(editCampaignDTO.getStatus());
+                campaignToUpdate.setCity(editCampaignDTO.getCity());
+                campaignToUpdate.setRadius(editCampaignDTO.getRadius());
+                campaignToUpdate.setCreatedAt(editCampaignDTO.getCreatedAt());
+                campaignToUpdate.setProduct(editCampaignDTO.getProduct());
+                campaignToUpdate.setKeywords(editCampaignDTO.getKeywords());
 
-            campaignRepository.save(campaign);
+                campaignRepository.save(campaignToUpdate);
+                BigDecimal newBalance = BigDecimal.valueOf(balance - (newFounds - oldFounds));
+                userService.updateBalanceById(existingCampaign.get().getAccount().getId(), newBalance);
+
+                return campaignRepository.save(campaignToUpdate);
+            }
         }
-
+        System.out.println("HEJKA NAKLEJKA4");
+        return null;
     }
 
     @Transactional
@@ -85,6 +100,7 @@ public class CampaignService {
     public List<Keyword> getAllKeywords() {
         return keywordRepository.getAll();
     }
+
     public List<City> getAllCities() {
         return cityRepository.getAll();
     }

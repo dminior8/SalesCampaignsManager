@@ -14,21 +14,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EditCampaignDTO {
+public class CampaignDetailsDTO {
     private String name;
+    private List<Keyword> keywords;
     private BigDecimal bidAmount;
     private BigDecimal fund;
     private EnumCampaignStatus status;
+    private Product product;
     private City city;
     private Integer radius;
-    private LocalDateTime createdAt;
-    private Product product;
-    private List<Keyword> keywords;
-    private UUID accountId;
 }
 

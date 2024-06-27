@@ -23,6 +23,8 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
 
 
-
+    @Query(value = "SELECT balance FROM account " +
+            "WHERE account.id = ?1",
+            nativeQuery = true)
     BigDecimal getBalanceById(UUID id);
 }

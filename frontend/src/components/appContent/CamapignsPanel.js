@@ -168,7 +168,7 @@ const CampaignsPage = () => {
                       <td>
                         <Link
                           className="btn btn-outline-primary mx-1"
-                          to={`${data.campaignId}`}
+                          to={`/api/campaigns/${data.campaignId}/edit`}
                         >
                           Edit
                         </Link>

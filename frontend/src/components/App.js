@@ -10,6 +10,7 @@ import Footer from "./footer/Footer";
 import Header from "./header/Header";
 import CampaignsPage from "./appContent/CamapignsPanel";
 import AddCampaignPage from "./appContent/AddCamapaignPanel";
+import EditCampaignPage from "./appContent/EditCampaignPanel";
 import LoginPanel from "./loginPanel/LoginPanel";
 import RegisterPage from "./loginPanel/RegisterPanel";
 import ProductsPage from "./appContent/ProductsPanel";
@@ -38,6 +39,10 @@ function App() {
     return isLoggedIn ? <CampaignsPage /> : <Navigate to="/api/auth/login" />;
   };
 
+  const renderCampaignsEditPage = () => {
+    return isLoggedIn ? <EditCampaignPage /> : <Navigate to="/api/auth/login" />;
+  };
+
   const renderCampaignsAddPage = () => {
     return isLoggedIn ? <AddCampaignPage /> : <Navigate to="/api/auth/login" />;
   };
@@ -56,6 +61,7 @@ function App() {
           <Route path="/api/campaigns/products/:productId" element={renderCampaignsPage()} />
           <Route path="/api/campaigns/products" element={renderProductsPage()} />
           <Route path="/api/campaigns" element={renderCampaignsPage()} />
+          <Route path="/api/campaigns/:campaignId/edit" element={renderCampaignsEditPage()} />
           <Route path="/api/campaigns/products/:productId/add" element={renderCampaignsAddPage()} />
           <Route path="/api/logout" element={renderCampaignsPage()} />
           <Route

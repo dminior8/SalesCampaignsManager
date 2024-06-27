@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.dminior.backendSCM.dto.CampaignDTO;
+import pl.dminior.backendSCM.dto.CampaignDetailsDTO;
 import pl.dminior.backendSCM.model.Campaign;
 import pl.dminior.backendSCM.model.City;
 import pl.dminior.backendSCM.model.Keyword;
@@ -11,6 +12,7 @@ import pl.dminior.backendSCM.repository.AccountRepository;
 import pl.dminior.backendSCM.repository.CityRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
@@ -66,6 +68,58 @@ public abstract class CampaignMapper {
         }
 
         return campaignDTO;
+    }
+
+    //    @Named("mapToCampaignDTO")
+//    @Mapping(target = "city", source = "name", qualifiedByName = "mapCityName")
+//    @Mapping(target = "id", source = "campaign.id")
+//    public abstract CampaignDTO mapToCampaignDTO(Campaign campaign);
+//
+//    @Named("mapCityName")
+//    public String mapCityName(City city) {
+//        return city.getName();
+//    }
+
+    public CampaignDetailsDTO mapToCampaignDetailsDTO(Optional<Campaign> campaignOld) {
+        if (campaignOld.isEmpty()) {
+            return null;
+        }
+        Campaign campaign = campaignOld.get();
+        CampaignDetailsDTO campaignDetailsDTO = new CampaignDetailsDTO();
+
+        if (campaign.getName() != null) {
+            campaignDetailsDTO.setName(campaign.getName());
+        }
+
+        if (campaign.getKeywords() != null) {
+            campaignDetailsDTO.setKeywords(campaign.getKeywords());
+        }
+
+        if (campaign.getProduct() != null) {
+            campaignDetailsDTO.setProduct(campaign.getProduct());
+        }
+
+        if (campaign.getBidAmount() != null) {
+            campaignDetailsDTO.setBidAmount(campaign.getBidAmount());
+        }
+
+        if (campaign.getFund() != null) {
+            campaignDetailsDTO.setFund(campaign.getFund());
+        }
+
+        if (campaign.getStatus() != null) {
+            campaignDetailsDTO.setStatus(campaign.getStatus());
+        }
+
+        if (campaign.getCity() != null) {
+            campaignDetailsDTO.setCity(campaign.getCity());
+        }
+
+        if (campaign.getRadius() >= 0) {
+            campaignDetailsDTO.setRadius(campaign.getRadius());
+        }
+
+        return campaignDetailsDTO;
     }
 
     @Named("mapToStringFromKeyword")

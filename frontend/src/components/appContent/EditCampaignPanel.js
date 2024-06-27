@@ -8,30 +8,31 @@ import { useParams } from "react-router-dom";
 import Cookies from "js-cookie";
 import "./appContent.css";
 
-const AddCampaignPage = () => {
-  const [user, setUser] = useState({ username: '', balance: '' });
+const EditCampaignPage = () => {
+  const [user, setUser] = useState({ id: '', username: '', balance: '' });
   const [keywords, setKeywords] = useState([]);
   const [cities, setCities] = useState([]);
-  const [currentProduct, setCurrentProduct] = useState({ id: '', name: '' });
   const [campaign, setCampaign] = useState({
+    id: '',
     name: '',
     keywords: [],
     product: {
       id: '',
       name: ''
     },
-    bidAmount: '1',
+    bidAmount: '',
     fund: '',
     status: 'ON',
     city: {
       id: '',
-      name: '',
+      name: ''
     },
     radius: '',
-    accountId: '' 
+    accountId: ''
   });
-  const { productId } = useParams();
+  const { campaignId } = useParams();
   const [showModal, setShowModal] = useState(false);
+  const [initialFunds, setInitialFunds] = useState(0);
 
   const fetchData = async () => {
     try {
@@ -53,26 +54,11 @@ const AddCampaignPage = () => {
       );
       console.log("User API Response:", userResponse.data);
       const userData = {
+        id: userResponse.data.id,
         username: userResponse.data.username,
         balance: userResponse.data.balance
       };
       setUser(userData);
-
-      const productNameResponse = await axios.get(
-        `http://localhost:8090/api/campaigns/product/${productId}`, 
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          },
-        }
-      );
-      console.log("Product name API Response:", productNameResponse.data);
-      const productNameData = {
-        id: productNameResponse.data.id,
-        name: productNameResponse.data.name
-      };
-      setCurrentProduct(productNameData);
-
 
       const citiesResponse = await axios.get(
         `http://localhost:8090/api/campaigns/cities`, 
@@ -89,7 +75,6 @@ const AddCampaignPage = () => {
       }));
       setCities(citiesData);
 
-
       const keywordsResponse = await axios.get(
         `http://localhost:8090/api/campaigns/keywords`, 
         {
@@ -104,15 +89,35 @@ const AddCampaignPage = () => {
         label: keyword.name,
       }));
       setKeywords(keywordsData);
-      
-      setCampaign((prevCampaign) => ({
-        ...prevCampaign,
-        product: {
-          id: productId
-        },
+
+      const campaignResponse = await axios.get(
+        `http://localhost:8090/api/campaigns/${campaignId}`, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        }
+      );
+      console.log("Campaign API Response:", campaignResponse.data);
+
+      const campaignData = {
+        id: campaignId,
+        name: campaignResponse.data.name,
+        keywords: campaignResponse.data.keywords.map(keyword => ({
+          value: keyword.id,
+          label: keyword.name
+        })),
+        bidAmount: campaignResponse.data.bidAmount,
+        fund: campaignResponse.data.fund,
+        status: campaignResponse.data.status,
+        city: campaignResponse.data.city,
+        radius: campaignResponse.data.radius,
         accountId: userResponse.data.id
-      }));
-    
+      };
+      setCampaign(campaignData);
+      console.log(campaignData);
+      setInitialFunds(campaignResponse.data.fund);
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -120,9 +125,8 @@ const AddCampaignPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [productId]);
+  }, [campaignId]);
 
-  
   useEffect(() => {
     setCampaign((prevCampaign) => ({
       ...prevCampaign,
@@ -137,22 +141,16 @@ const AddCampaignPage = () => {
   const onKeywordsChange = (selectedOptions) => {
     setCampaign({
       ...campaign,
-      keywords: selectedOptions.map(option => ({
-        id: option.value,
-        name: option.label
-      }))
+      keywords: selectedOptions
     });
   };
 
   const onCityChange = (selectedOption) => {
     setCampaign({
       ...campaign,
-      city: {
-        id: selectedOption.value,
-        name: selectedOption.label
-      }
+      city: selectedOption
     });
-  }
+  };
 
   const handleStatusChange = () => {
     const newStatus = campaign.status === 'ON' ? 'OFF' : 'ON'; 
@@ -160,7 +158,15 @@ const AddCampaignPage = () => {
   };
 
   const validateFunds = () => {
-    return campaign.fund <= user.balance;
+    if (parseFloat(campaign.fund) < parseFloat(initialFunds)) {
+      console.error("Fund cannot be less than previous fund.");
+      return false;
+    } else if (parseFloat(campaign.fund) - parseFloat(initialFunds) > parseFloat(user.balance)) {
+      console.error("Added fund cannot be greater than balance.");
+      return false;
+    } else {
+      return true;
+    }
   };  
 
   const onSubmit = async (e) => {
@@ -168,10 +174,10 @@ const AddCampaignPage = () => {
     
     if (!validateFunds()) {
       console.error("Insufficient funds.");
-      alert("You do not have enough funds to create this campaign.");
+      alert("Wrong value, please try again.");
       return;
     }
-  
+    
     try {
       const token = Cookies.get("accessTokenFront");
   
@@ -181,43 +187,39 @@ const AddCampaignPage = () => {
       }
   
       // Aktualizacja balansu użytkownika
-      const newBalance = user.balance - campaign.fund;
+      const newBalance = initialFunds + user.balance - campaign.fund;
       const userData = {
         username: user.username,
         balance: newBalance
       };
       setUser(userData);
   
-      // Aktualizacja salda
       await axios.put(
-        `http://localhost:8090/api/user/current/balance`,
+        `http://localhost:8090/api/campaigns/${campaignId}/edit`,
         {
-          username: user.username,
-          balance: newBalance
+          ...campaign,
+          keywords: campaign.keywords.map(keyword => ({
+            id: keyword.value,
+            name: keyword.label
+          })),
+          city: {
+            id: campaign.city.id,
+            name: campaign.city.name
+          }
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
+      )
+      ;
   
-      // Wysyłanie danych kampanii
-      await axios.post(
-        `http://localhost:8090/api/campaigns/products/${productId}/add`,
-        campaign,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      // Pokaż okno modalne po pomyślnym zakończeniu żądania POST
-      setShowModal(true);
-
       // Ponowne pobranie danych po zapisaniu kampanii
       fetchData();
+
+      // Pokaż okno modalne po pomyślnym zakończeniu żądania PUT
+      setShowModal(true);
   
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -255,7 +257,7 @@ const AddCampaignPage = () => {
         <div className="campaign-list shadow">
           <div className="col-md-12">
             <div className="py-2">
-              <h2 className="text-center mb-4">Add campaign</h2>
+              <h2 className="text-center mb-4">Edit campaign</h2>
               
               <form onSubmit={onSubmit}>
                 <div className="col-md-4 mx-auto">
@@ -272,19 +274,6 @@ const AddCampaignPage = () => {
                     onChange={(e) => onInputChange(e)}
                   />
                 </div>
-                
-                <div className="col-md-4 mx-auto">
-                  <label htmlFor="products">Product</label>
-                  <input
-                    id="products"
-                    name="products"
-                    options={currentProduct}
-                    value={currentProduct.name}
-                    placeholder={productId}
-                    readOnly
-                    className="form-control"
-                  />
-                </div>
 
                 <div className="col-md-4 mx-auto">
                   <label htmlFor="keywords">Keywords</label>
@@ -293,21 +282,9 @@ const AddCampaignPage = () => {
                     name="keywords"
                     options={keywords}
                     onChange={onKeywordsChange}
-                    value={campaign.keywords.map(keyword => ({
-                      value: keyword.id,
-                      label: keyword.name
-                    }))}
-                    placeholder="Select keywords"
-                    isSearchable
-                    isClearable
-                    required
+                    value={campaign.keywords}
                     isMulti
-                    onInvalid={(e) => {
-                      e.target.setCustomValidity("Select keywords");
-                    }}
-                    onBlur={(e) => {
-                      e.target.setCustomValidity("");
-                    }}
+                    required
                     styles={{
                       control: (provided) => ({ ...provided, textAlign: "left" }),
                     }}
@@ -321,99 +298,93 @@ const AddCampaignPage = () => {
                     name="city"
                     options={cities}
                     onChange={onCityChange}
-                    value={cities.find(option => option.label === campaign.city)}
-                    placeholder="Select city"
-                    isSearchable
-                    isClearable
+                    value={cities.find(option => option.label === campaign.city.name)}
                     required
-                    onInvalid={(e) => {
-                      e.target.setCustomValidity("Select city");
-                    }}
-                    onBlur={(e) => {
-                      e.target.setCustomValidity("");
-                    }}
                     styles={{
-                      control: provided => ({ ...provided, textAlign: "left" })
+                      control: (provided) => ({ ...provided, textAlign: "left" }),
                     }}
                   />
                 </div>
 
-                <div className="col-md-4 mx-auto">
-                  <label htmlFor="Radius" className="form-label">
-                    Radius
-                  </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Enter Radius"
-                    name="radius"
-                    required
-                    min="0"
-                    value={campaign.radius}
-                    onChange={(e) => onInputChange(e)}
-                  />
-                </div>
+                <div className="container col-md-4 order-md-2">
+                  <div className="row">
+                    <div className="col-md-6 order-md-2">
+                      <div className="row">
+                        <div className="col-md-12">
+                          <label htmlFor="radius">Radius (km)</label>
+                          <input
+                            id="radius"
+                            name="radius"
+                            type="number"
+                            className="form-control"
+                            value={campaign.radius}
+                            onChange={onInputChange}
+                            placeholder="Enter radius"
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                <div className="col-md-4 mx-auto">
-                  <label htmlFor="Fund" className="form-label">
-                    Fund
-                  </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Enter Fund"
-                    name="fund"
-                    required
-                    min="1"
-                    value={campaign.fund}
-                    onChange={(e) => onInputChange(e)}
-                  />
+                    <div className="col-md-6 order-md-1 d-flex justify-content-center align-items-center">
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Check
+                            type="switch"
+                            id="custom-switch"
+                            checked={campaign.status === "ON"}
+                            onChange={handleStatusChange}
+                            label="Is campaign active?"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-
                 <div className="col-md-4 mx-auto">
-                  <label htmlFor="BidAmount" className="form-label">
-                    Bid Amount
-                  </label>
+                  <label htmlFor="bidAmount">Bid Amount (PLN)</label>
                   <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Enter Bid Amount"
+                    id="bidAmount"
                     name="bidAmount"
-                    required
-                    min="1"
+                    type="number"
                     value={campaign.bidAmount}
-                    onChange={(e) => onInputChange(e)}
+                    className={`form-control ${campaign.bidAmount >= 1 ? "" : "is-invalid"}`}
+                    onChange={onInputChange}
+                    placeholder="Enter bid amount"
+                    step="0.5"
+                    min="1"
+                    required
                   />
                 </div>
-
                 <div className="col-md-4 mx-auto">
-                  <Form.Group controlId="statusSwitch" className="my-3">
-                    <Form.Check
-                      type="switch"
-                      id="statusSwitch"
-                      label={`Status: ${campaign.status}`}
-                      checked={campaign.status === "ON"}
-                      onChange={handleStatusChange}
-                    />
-                  </Form.Group>
+                  <label htmlFor="fund">Funds (PLN)</label>
+                  <input
+                    id="fund"
+                    name="fund"
+                    type="number"
+                    className={`form-control ${campaign.fund > user.balance ? "is-invalid" : ""}`}
+                    value={campaign.fund}
+                    onChange={onInputChange}
+                    placeholder="Enter fund amount"
+                    min="0"
+                    required
+                  />
                 </div>
                 <div className="mt-4"></div>
-                  <div className="text-center">
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                  </div>
+                <div className="text-center">
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
               </form>
             </div>
           </div>
         </div>
       </div>
-
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Success</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Campaign added successfully!</Modal.Body>
+        <Modal.Body>Campaign updated successfully!</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
@@ -424,4 +395,4 @@ const AddCampaignPage = () => {
   );
 };
 
-export default AddCampaignPage;
+export default EditCampaignPage;

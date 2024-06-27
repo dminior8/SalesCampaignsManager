@@ -107,7 +107,6 @@ public class CampaignServiceTests {
         // Arrange
         EditCampaignDTO editCampaignDTO = new EditCampaignDTO();
         UUID campaignId = UUID.randomUUID();
-        editCampaignDTO.setId(campaignId);
         editCampaignDTO.setName("Updated Campaign Name");
         editCampaignDTO.setBidAmount(BigDecimal.valueOf(200));
         editCampaignDTO.setFund(BigDecimal.valueOf(2000));
@@ -127,10 +126,9 @@ public class CampaignServiceTests {
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(existingCampaign.getAccount()));
 
         // Act
-        campaignService.editCampaign(editCampaignDTO);
+        campaignService.editCampaign(editCampaignDTO, campaignId);
 
         // Assert
-        assertEquals(editCampaignDTO.getId(), existingCampaign.getId());
         assertEquals(editCampaignDTO.getName(), existingCampaign.getName());
         assertEquals(editCampaignDTO.getBidAmount(), existingCampaign.getBidAmount());
         assertEquals(editCampaignDTO.getFund(), existingCampaign.getFund());

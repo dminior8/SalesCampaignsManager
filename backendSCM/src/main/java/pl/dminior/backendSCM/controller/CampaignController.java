@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -36,7 +37,7 @@ public class CampaignController {
             AccountDetailsImpl accountDetailsImpl = (AccountDetailsImpl) authentication.getPrincipal();
             UUID accountId = accountDetailsImpl.getId();
             List<CampaignDTO> campaignDTOList = new ArrayList<>();
-            List<Campaign> campaigns = campaignService.getAllCampaignsByProductIdAndUserId(productId,accountId);
+            List<Campaign> campaigns = campaignService.getAllCampaignsByProductIdAndUserId(productId, accountId);
             campaigns.forEach(campaign -> {
                 City city = cityRepository.getCityByCampaignId(campaign.getId());
                 campaignDTOList.add(campaignMapper.mapToCampaignDTO(campaign, city));
@@ -69,20 +70,18 @@ public class CampaignController {
     @GetMapping("/{campaignId}")
     public ResponseEntity<?> getCampaignById(@PathVariable UUID campaignId, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            Campaign campaign = campaignService.getCampaignByCampaignId(campaignId);
-            if (campaign == null) {
+            Optional<Campaign> campaign = campaignService.getCampaignByCampaignId(campaignId);
+            if (campaign.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
-            City city = cityRepository.getCityById(campaign.getCity().getId());
-            CampaignDTO campaignDTO = campaignMapper.mapToCampaignDTO(campaign, city);
-            return ResponseEntity.ok(campaignDTO);
+            return ResponseEntity.ok(campaignMapper.mapToCampaignDetailsDTO(campaign));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
     }
 
     //Dodawanie nowej kampanii dla produktu
-    @PostMapping("products/{productId}/add")
+    @PostMapping("/products/{productId}/add")
     public ResponseEntity<?> createCampaignForProduct(@RequestBody CreateCampaignDTO createCampaignDTO, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             campaignService.saveCampaign(createCampaignDTO);
@@ -93,14 +92,18 @@ public class CampaignController {
     }
 
     //Aktualizacja istniejącej kampanii
-    @PutMapping
-    public ResponseEntity<?> editCampaignForProduct(@RequestBody EditCampaignDTO editCampaignDTO, Authentication authentication) {
+    @PutMapping("/{campaignId}/edit")
+    public ResponseEntity<?> editCampaignForProduct(@PathVariable UUID campaignId, @RequestBody EditCampaignDTO editCampaignDTO, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            campaignService.editCampaign(editCampaignDTO);
-            return ResponseEntity.ok().body(new MessageResponse("Campaign edited successfully!"));
+
+            Campaign editedCampaign = campaignService.editCampaign(editCampaignDTO, campaignId);
+            if (editedCampaign != null) {
+                return ResponseEntity.ok().body(editedCampaign);
+            }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong values");
     }
 
 
