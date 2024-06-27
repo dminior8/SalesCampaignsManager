@@ -7,6 +7,7 @@ This is a web application designed for managing sales campaigns for various prod
 - [Logging in](#logging-in)
 - [Endpoints](#endpoints)
 - [Technologies Used](#technologies-used)
+- [GUI presentation](#gui-presentation)
 - [License](#license)
 
 ## Getting Started
@@ -100,6 +101,12 @@ You can log in using the following credentials for different users:
   - Bootstrap
   - JS-Cookies
   - DOM Manipulation
+
+
+## GUI presentation
+https://github.com/dminior8/SalesCampaignsManager/assets/86890266/4c168255-ede9-4c89-9a28-3d302697ed93
+
+
 
 ## License
 This project is licensed under the [MIT](https://github.com/dminior8/SalesCampaingsManager/blob/main/LICENSE) License. All modifications to the project must adhere to this license.
